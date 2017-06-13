@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging
 import os
+
 from aiocache import RedisCache
 
 # Search engine
@@ -18,14 +19,16 @@ LOGGER = logging.getLogger('owllook')
 # aiocache
 REDIS_DICT = dict(
     IS_CACHE=True,
-    REDIS_ENDPOINT="",
+    REDIS_ENDPOINT="localhost",
     REDIS_PORT=6379,
-    PASSWORD="",
+    PASSWORD=None,
     CACHE_DB=0,
     SESSION_DB=1,
-    POOLSIZE=10,
-)
-AIO_CACHE = RedisCache(endpoint=REDIS_DICT['REDIS_ENDPOINT'], port=REDIS_DICT['REDIS_PORT'], namespace="main")
+    POOLSIZE=10,)
+AIO_CACHE = RedisCache(
+    endpoint=REDIS_DICT['REDIS_ENDPOINT'],
+    port=REDIS_DICT['REDIS_PORT'],
+    namespace="main")
 
 # mongodb
 MONGODB = dict(
@@ -33,20 +36,14 @@ MONGODB = dict(
     PORT="",
     USERNAME='',
     PASSWORD='',
-    DATABASE='owllook',
-)
+    DATABASE='owllook',)
 
 # website
-WEBSITE = dict(
-    IS_RUNNING=True,
-    TOKEN=''
-)
+WEBSITE = dict(IS_RUNNING=True, TOKEN='')
 
-AUTH = {
-    "Owllook-Api-Key": ""
-}
+AUTH = {"Owllook-Api-Key": ""}
 
-HOST = ['127.0.0.1:8001', '0.0.0.0:8001']
+HOST = ['127.0.0.1:8001', '0.0.0.0:8001', 'localhost:8001']
 
 TIMEZONE = 'Asia/Shanghai'
 
