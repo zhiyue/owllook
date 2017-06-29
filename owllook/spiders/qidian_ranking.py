@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 import time
-from talonspider import Spider, Item, TextField, AttrField
+
+from talonspider import AttrField, Item, Spider, TextField
 from talonspider.utils import get_random_user_agent
-from pprint import pprint
 
 from owllook.database.mongodb import MotorBase
 from owllook.utils.tools import async_callback
