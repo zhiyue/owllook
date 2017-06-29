@@ -3,12 +3,13 @@ from sanic import Blueprint, response
 from urllib.parse import unquote
 from bs4 import BeautifulSoup
 from pprint import pprint
+import html2text
 
 from owllook.fetcher.function import get_time, get_netloc
 from owllook.fetcher.extract_novels import extract_chapters
 from owllook.fetcher.decorators import authenticator, auth_params
 from owllook.fetcher.cache import cache_owllook_baidu_novels_result, cache_owllook_so_novels_result, \
-    cache_owllook_novels_chapter
+    cache_owllook_novels_chapter, cache_owllook_novels_content
 from owllook.config import LOGGER
 
 api_bp = Blueprint('api_blueprint', url_prefix='v1')
@@ -102,3 +103,35 @@ async def owl_novels_chapters(request):
         result = {'status': 500, 'msg': e}
     result.update({'finished_at': get_time()})
     return response.json(result)
+
+
+@api_bp.route("/owl_novels_content")
+@auth_params('content_url')
+@authenticator('Owllook-Api-Key')
+async def owl_novels_content(request):
+    """
+    返回小说正文内容
+    :rtype: json
+    :param request: 
+    :param content_url: 源章节内容 url
+    :return: 小说内容
+    """
+    content_url = request.args.get('content_url', None)
+    netloc = get_netloc(content_url)
+    try:
+        res = await cache_owllook_novels_content(content_url, netloc)
+        content = html2text.html2text(res.get('content', '')).replace('\n', '')
+        title = res.get('title', '')
+        content = str(content).strip('[]Jjs,').replace('http', 'hs')
+        result = {
+            'status': 200,
+            'data': {
+                'content': content,
+                'title': title
+            },
+            'finished_at': get_time()
+        }
+        return response.json(result)
+    except Exception as e:
+        LOGGER.exception(e)
+        result = {'status': 500, 'msg': e}
