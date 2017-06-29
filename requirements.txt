@@ -6,6 +6,7 @@ tornado
 sanic>=0.5.1
 Jinja2>=2.9.5
 arrow
+html2text
 html5lib
 sanic-session>=0.1.2
 asyncio-redis>=0.14.3
