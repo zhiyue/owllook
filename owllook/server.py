@@ -14,7 +14,7 @@ from owllook.views.except_blueprint import except_bp
 from owllook.views.admin_blueprint import admin_bp
 from owllook.views.api_blueprint import api_bp
 from owllook.database.redis import RedisSession
-from owllook.config import WEBSITE, REDIS_DICT, LOGGER, HOST
+from owllook.config import WEBSITE, REDIS_DICT, LOGGER, HOST, DEBUG
 
 app = Sanic(__name__)
 app.blueprint(novels_bp)
@@ -73,4 +73,4 @@ async def save_session(request, response):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", workers=1, port=8001, debug=True)
+    app.run(host="127.0.0.1", workers=1, port=8001, debug=DEBUG)

@@ -6,7 +6,37 @@ import arrow
 
 from urllib.parse import urlparse
 
-from owllook.config import USER_AGENT, LOGGER, TIMEZONE
+from owllook.config import USER_AGENT, LOGGER, TIMEZONE, PROXY
+
+
+def use_proxy(retries=3, proxy=None, **kwargs):
+    """
+    In some cases you need to use a proxy to access the site
+    
+    The function to be decorated must support the ``proxy`` parameter
+        such as:
+            @use_proxy
+            def fun(proxy=None):
+                pass
+    
+    :param retries: Number of failed visits to retry. Default is 3.
+    :param proxy: proxy setting .if not set. Default is PROXY which is setting in config
+    """
+    proxy_kwargs = kwargs
+
+    def proxy_decorator(func):
+        async def wrapper(*args, **kwargs):
+            retry_count = 0
+            result = None
+            while retry_count < retries and not result:
+                proxy_ = proxy or PROXY
+                if proxy_:
+                    kwargs.update({'proxy': proxy_})
+                result = await func(*args, **kwargs)
+            return result
+        return wrapper
+
+    return proxy_decorator
 
 
 def get_data(filename, default='') -> list:
@@ -52,8 +82,10 @@ def get_netloc(url):
     return netloc or None
 
 
-async def target_fetch(client, url):
+@use_proxy
+async def target_fetch(client, url, proxy=None):
     """
+    :param proxy: proxy setting
     :param client: aiohttp client
     :param url: targer url
     :return: text
@@ -61,7 +93,7 @@ async def target_fetch(client, url):
     with async_timeout.timeout(20):
         try:
             headers = {'user-agent': get_random_user_agent()}
-            async with client.get(url, headers=headers) as response:
+            async with client.get(url, headers=headers, proxy=proxy) as response:
                 assert response.status == 200
                 LOGGER.info('Task url: {}'.format(response.url))
                 try:
