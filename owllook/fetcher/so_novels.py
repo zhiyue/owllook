@@ -6,16 +6,16 @@ import async_timeout
 from bs4 import BeautifulSoup
 from urllib.parse import unquote, urlparse, parse_qs
 
-from owllook.fetcher.function import get_random_user_agent
+from owllook.fetcher.function import get_random_user_agent, use_proxy
 from owllook.config import SO_URL, LOGGER, BLACK_DOMAIN, RULES
 
-
-async def fetch(client, url, novels_name):
+@use_proxy()
+async def fetch(client, url, novels_name, proxy=None):
     with async_timeout.timeout(20):
         try:
             headers = {'user-agent': get_random_user_agent()}
             params = {'q': novels_name, 'ie': 'utf-8'}
-            async with client.get(url, params=params, headers=headers) as response:
+            async with client.get(url, params=params, headers=headers, proxy=proxy) as response:
                 assert response.status == 200
                 LOGGER.info('Task url: {}'.format(response.url))
                 try:

@@ -28,10 +28,16 @@ def use_proxy(retries=3, proxy=None, **kwargs):
         async def wrapper(*args, **kwargs):
             retry_count = 0
             result = None
-            while retry_count < retries and not result:
-                proxy_ = proxy or PROXY
+            proxy_ = proxy or PROXY
+            while retry_count < retries:
                 if proxy_:
                     kwargs.update({'proxy': proxy_})
+                result = await func(*args, **kwargs)
+                if result:
+                    break
+                retry_count += 1
+            if proxy_ and not result:
+                kwargs.pop('proxy')
                 result = await func(*args, **kwargs)
             return result
         return wrapper
@@ -82,7 +88,7 @@ def get_netloc(url):
     return netloc or None
 
 
-@use_proxy
+@use_proxy()
 async def target_fetch(client, url, proxy=None):
     """
     :param proxy: proxy setting
